@@ -72,15 +72,25 @@ jobs:
           Copy-Item build/Release/nox.exe deploy/
           windeployqt --release --no-translations --compiler-runtime deploy/nox.exe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Gerar instalador
+      - name: Instalar NSIS
         shell: pwsh
         run: |
           choco install nsis --yes --no-progress
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Gerar instalador
+        shell: pwsh
+        run: |
           cmake -S . -B build "-DNOX_DEPLOY_DIR=$((Get-Location).Path)/deploy"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cpack --config build/CPackConfig.cmake -C Release -G NSIS -B dist
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE -ne 0) {
+            $log = Get-ChildItem dist -Recurse -Filter NSISOutput.log | Select-Object -First 1
+            if ($log) {
+              $erro = ((Get-Content $log.FullName -Tail 35) -join "%0A").Replace("`r", "")
+              Write-Output "::error title=Erro do NSIS::$erro"
+            }
+            exit 1
+          }
           Move-Item dist/Nox-*.exe dist/Nox-Windows-x64.exe
       - name: Conferir instalador
         shell: pwsh
