@@ -1,0 +1,122 @@
+name: Compilar e empacotar
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependências
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev libqt6svg6-dev qt6-wayland libgl1-mesa-dev libfuse2
+      - name: Compilar
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build
+      - name: Testar
+        run: ctest --test-dir build --output-on-failure
+      - name: Gerar pacote Linux
+        run: |
+          cpack --config build/CPackConfig.cmake -G TGZ -B dist
+          mv dist/Nox-*.tar.gz dist/Nox-Linux-x86_64.tar.gz
+      - name: Gerar AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+          QMAKE: /usr/bin/qmake6
+          NO_STRIP: '1'
+          EXTRA_PLATFORM_PLUGINS: 'libqoffscreen.so;libqwayland-egl.so;libqwayland-generic.so'
+        run: |
+          curl -fL https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -o linuxdeploy.AppImage
+          curl -fL https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -o linuxdeploy-plugin-qt.AppImage
+          chmod +x linuxdeploy*.AppImage
+          DESTDIR=AppDir cmake --install build --prefix /usr
+          OUTPUT=Nox-Linux-x86_64.AppImage ./linuxdeploy.AppImage --appdir AppDir --plugin qt --output appimage
+          mv Nox-Linux-x86_64.AppImage dist/
+      - name: Conferir AppImage
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ./dist/Nox-Linux-x86_64.AppImage --appimage-extract-and-run --smoke-test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nox-linux-x86_64
+          path: |
+            dist/Nox-Linux-x86_64.AppImage
+            dist/Nox-Linux-x86_64.tar.gz
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Compilar
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+      - run: cmake --build build --config Release
+      - name: Testar
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Reunir bibliotecas Qt
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force deploy
+          Copy-Item build/Release/nox.exe deploy/
+          windeployqt --release --no-translations --compiler-runtime deploy/nox.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Gerar instalador
+        shell: pwsh
+        run: |
+          choco install nsis --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake -S . -B build "-DNOX_DEPLOY_DIR=$((Get-Location).Path)/deploy"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cpack --config build/CPackConfig.cmake -C Release -G NSIS -B dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Move-Item dist/Nox-*.exe dist/Nox-Windows-x64.exe
+      - name: Conferir instalador
+        shell: pwsh
+        run: |
+          $destino = "$env:RUNNER_TEMP/Nox"
+          $processo = Start-Process -FilePath "./dist/Nox-Windows-x64.exe" -ArgumentList "/S", "/D=$destino" -Wait -PassThru
+          if ($processo.ExitCode -ne 0) { exit $processo.ExitCode }
+          if (!(Test-Path "$destino/bin/nox.exe")) { throw "Executável não encontrado após instalar." }
+          $env:QT_QPA_PLATFORM = "windows"
+          $env:PATH = "$env:SystemRoot/system32;$env:SystemRoot"
+          $processo = Start-Process -FilePath "$destino/bin/nox.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+          if ($processo.ExitCode -ne 0) { exit $processo.ExitCode }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nox-windows-x64
+          path: dist/Nox-Windows-x64.exe
+          if-no-files-found: error
+
+  publicar:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: nox-*
+          path: arquivos
+          merge-multiple: true
+      - name: Publicar downloads
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd arquivos
+          sha256sum Nox-* > SHA256SUMS.txt
+          cd ..
+          gh release create "$GITHUB_REF_NAME" arquivos/* --verify-tag --title "Nox $GITHUB_REF_NAME" --notes-file packaging/release.md

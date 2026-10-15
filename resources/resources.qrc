@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>nox.svg</file>
+        <file>style.qss</file>
+        <file>toolchain.sh</file>
+        <file>logos/node.svg</file>
+        <file>logos/npm.svg</file>
+        <file>logos/go.svg</file>
+        <file>logos/zed.svg</file>
+        <file>logos/docker.svg</file>
+        <file>logos/c.svg</file>
+        <file>logos/cpp.svg</file>
+    </qresource>
+</RCC>

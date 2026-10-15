@@ -1,0 +1,7 @@
+/build*/
+/dist/
+/AppDir/
+/deploy/
+__pycache__/
+*.pyc
+*.AppImage

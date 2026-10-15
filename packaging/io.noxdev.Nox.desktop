@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Nox
+GenericName=Developer tools installer
+Comment=Instalar ferramentas de desenvolvimento
+Exec=nox
+Icon=nox
+Terminal=false
+Categories=Development;Utility;
+Keywords=developer;nodejs;golang;docker;linux;
+StartupWMClass=nox

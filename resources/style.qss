@@ -1,0 +1,24 @@
+QWidget { background: #202226; color: #e2e4e7; font-size: 13px; }
+QLabel { background: transparent; }
+QLabel#marca { font-size: 20px; font-weight: 600; }
+QLabel#sistema, QLabel#descricao, QLabel#situacao { color: #aeb3bc; font-size: 12px; }
+QLabel#nomeFerramenta { font-size: 15px; font-weight: 600; }
+QFrame#ferramenta { background: #24272c; border-bottom: 1px solid #373b42; }
+QPushButton { background: #32363d; border: 1px solid #50555e; border-radius: 3px; padding: 7px 12px; }
+QPushButton:hover { background: #3b4048; }
+QPushButton:pressed { background: #282c32; }
+QPushButton:focus, QLineEdit:focus { border: 1px solid #8badd8; }
+QPushButton:disabled { background: #2a2d32; color: #767d87; border-color: #3b4048; }
+QLineEdit { background: #191b1f; border: 1px solid #50555e; border-radius: 3px; padding: 8px 10px; selection-background-color: #39567d; }
+QPlainTextEdit { background: #191b1f; border: 1px solid #40454d; border-radius: 3px; padding: 8px; selection-background-color: #39567d; }
+QScrollArea, QScrollArea > QWidget > QWidget { background: transparent; }
+QScrollBar:vertical { background: #202226; width: 10px; margin: 0; }
+QScrollBar::handle:vertical { background: #555c66; min-height: 25px; border-radius: 3px; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }
+QProgressBar { border: none; background: #32363d; }
+QProgressBar::chunk { background: #8badd8; }
+QRadioButton { spacing: 10px; padding: 10px; }
+QRadioButton::indicator { width: 14px; height: 14px; border: 1px solid #9098a4; border-radius: 7px; background: #191b1f; }
+QRadioButton::indicator:checked { background: #8badd8; border-color: #8badd8; }
+QToolTip { background: #32363d; color: #e2e4e7; border: 1px solid #606874; padding: 4px; }
