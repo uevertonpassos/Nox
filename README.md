@@ -1,80 +1,82 @@
 # Nox
 
-Um aplicativo para instalar as ferramentas que uso para programar, sem precisar procurar o comando de cada uma.
+A desktop app to install the tools I use for programming, without looking up each installation command.
 
-Feito em C++ com Qt 6. Tem versões para Linux e Windows.
+Built with C++ and Qt 6 for Linux and Windows.
 
 ## Download
 
-- [Windows x64 — instalador .exe](https://github.com/uevertonpassos/Nox/releases/latest/download/Nox-Windows-x64.exe)
+- [Windows x64 — .exe installer](https://github.com/uevertonpassos/Nox/releases/latest/download/Nox-Windows-x64.exe)
 - [Linux x86_64 — AppImage](https://github.com/uevertonpassos/Nox/releases/latest/download/Nox-Linux-x86_64.AppImage)
-- [Linux x86_64 — pacote .tar.gz](https://github.com/uevertonpassos/Nox/releases/latest/download/Nox-Linux-x86_64.tar.gz)
+- [Linux x86_64 — .tar.gz package](https://github.com/uevertonpassos/Nox/releases/latest/download/Nox-Linux-x86_64.tar.gz)
 
-[Ver todas as versões](https://github.com/uevertonpassos/Nox/releases)
+[All releases](https://github.com/uevertonpassos/Nox/releases)
 
-No Windows, abra o instalador. O Nox usa o WinGet para instalar as ferramentas.
+On Windows, open the installer. Nox uses WinGet to install the tools.
 
-No Linux, dê permissão ao AppImage e execute:
+On Linux, make the AppImage executable and open it:
 
 ```bash
 chmod +x Nox-Linux-x86_64.AppImage
 ./Nox-Linux-x86_64.AppImage
 ```
 
-Se aparecer um erro sobre FUSE, use:
+If you get a FUSE error, use:
 
 ```bash
 ./Nox-Linux-x86_64.AppImage --appimage-extract-and-run
 ```
 
-O AppImage é compilado no Ubuntu 22.04 e precisa de glibc 2.35 ou mais recente. O pacote `.tar.gz` usa o Qt 6 instalado no sistema: extraia e execute `bash instalar.sh`.
+The AppImage is built on Ubuntu 22.04 and requires glibc 2.35 or newer. The `.tar.gz` package uses your system's Qt 6 libraries: extract it and run `bash install.sh`.
 
-## O que instala
+## Tools
 
 - Node.js LTS
-- npm, junto com o Node.js LTS
-- Go estável
+- npm, bundled with Node.js LTS
+- Go stable
 - Zed
-- Docker Desktop ou Docker Engine
-- Compiladores de C e C++
+- Docker Desktop or Docker Engine
+- C and C++ compilers
 
-Go e npm não têm um canal LTS próprio. Para npm, uso a versão que acompanha Node.js LTS.
+Go and npm have no separate LTS channel. For npm, Nox uses the version bundled with Node.js LTS.
 
-No Linux, há comandos para Debian/Ubuntu, Fedora, Arch/CachyOS e openSUSE. No Windows, Docker usa a versão Desktop. No Arch/CachyOS, a opção disponível é Docker Engine.
+On Linux, installation commands are available for Debian/Ubuntu, Fedora, Arch/CachyOS, and openSUSE. Windows uses Docker Desktop. On Arch/CachyOS, use Docker Engine.
 
-## Como usar
+## Usage
 
-Busque uma ferramenta, clique em instalar e confira os comandos antes de confirmar. O resultado aparece na parte de baixo da janela.
+Search for a tool, click **Install**, and review the commands before confirming. The output appears at the bottom of the window.
 
-“Detectado” significa que o executável foi encontrado. Isso não confirma a versão nem, no caso do Docker, se o serviço está rodando.
+The app starts in English. Open **Settings → Language** to choose **English** or **Português**. The change takes effect immediately and is saved for the next session.
 
-Alguns detalhes:
+“Detected” means the executable was found. It does not confirm its version or, for Docker, whether the service is running.
 
-- É preciso ter internet para baixar as ferramentas.
-- No Linux, abra o Nox sem `sudo`. A senha será pedida pelo sistema quando necessária.
-- Node.js e Go ficam em `~/.local/share/nox`. Abra um terminal novo depois de instalar.
-- No Arch/CachyOS, a instalação de pacotes também atualiza o sistema com `pacman -Syu`.
-- Docker Desktop precisa de virtualização. No Linux, exige KVM; no Windows, WSL 2 ou Hyper-V.
-- NixOS, Alpine e a instalação de pacotes em sistemas imutáveis ainda não são atendidos.
-- O instalador Windows não tem assinatura digital.
+A few details:
 
-## Compilar
+- An internet connection is needed to download tools.
+- On Linux, open Nox without `sudo`. The system asks for your password when needed.
+- Node.js and Go are installed in `~/.local/share/nox`. Open a new terminal after installation.
+- On Arch/CachyOS, installing system packages also updates the system with `pacman -Syu`.
+- Docker Desktop requires virtualization: KVM on Linux, or WSL 2 or Hyper-V on Windows.
+- NixOS, Alpine, and package installation on immutable systems are not supported yet.
+- The Windows installer is not digitally signed.
 
-Precisa de C++17, CMake 3.22+, Ninja e Qt 6.2+ com Widgets, Network, Svg e Test.
+## Build
 
-No Arch/CachyOS:
+Requires C++17, CMake 3.22+, Ninja, and Qt 6.2+ with Widgets, Network, Svg, and Test.
+
+On Arch/CachyOS:
 
 ```bash
 sudo pacman -Syu --needed base-devel cmake ninja qt6-base qt6-svg qt6-wayland
 ```
 
-No Ubuntu/Debian:
+On Ubuntu/Debian:
 
 ```bash
 sudo apt install build-essential cmake ninja-build qt6-base-dev libqt6svg6-dev qt6-wayland
 ```
 
-Depois:
+Then:
 
 ```bash
 git clone https://github.com/uevertonpassos/Nox.git
@@ -84,29 +86,31 @@ cmake --build build
 ./build/nox
 ```
 
-No Windows, use Qt 6 para MSVC 2022 e CMake. A compilação do instalador está em [.github/workflows/build.yml](.github/workflows/build.yml).
+On Windows, use Qt 6 for MSVC 2022 and CMake. The installer build is in [.github/workflows/build.yml](.github/workflows/build.yml).
 
-## Arquivos
+## Files
 
-- `src/main.cpp`: inicia o aplicativo.
-- `src/janela.cpp`: janela, botões e busca.
-- `src/sistema.cpp`: detecta o sistema e escolhe os comandos.
-- `src/instalador.cpp`: baixa as informações de versão e executa a instalação.
-- `resources/toolchain.sh`: instala Node.js e Go no Linux.
-- `resources/style.qss`: aparência da janela.
+- `src/main.cpp`: starts the app.
+- `src/window.cpp`: window, buttons, search, and settings.
+- `src/system.cpp`: detects the system and selects installation commands.
+- `src/installer.cpp`: fetches version information and runs installations.
+- `src/language.cpp`: loads translations and saves the language preference.
+- `resources/translations/pt_BR.json`: Portuguese translations.
+- `resources/toolchain.sh`: installs Node.js and Go on Linux.
+- `resources/style.qss`: window appearance.
 
-## Testes
+## Tests
 
 ```bash
 ctest --test-dir build --output-on-failure
 ```
 
-Os testes verificam os comandos, a busca e uma instalação em pasta temporária. Não instalam ferramentas no computador durante o teste.
+Tests check installation commands, search, language settings, and a simulated installation in a temporary folder. They do not install tools on the host system.
 
-## Versões
+## Releases
 
-O GitHub Actions compila Linux e Windows. Uma tag como `v0.1.0` publica os arquivos em Releases depois que a compilação e os testes terminam.
+GitHub Actions builds Linux and Windows packages. A tag such as `v0.1.0` publishes the files to Releases after the build and tests pass.
 
-## Créditos
+## Credits
 
-[Fontes dos logos](resources/logos/FONTES.md). As bibliotecas Qt e suas licenças estão descritas em [THIRD_PARTY.md](THIRD_PARTY.md).
+[Logo sources](resources/logos/SOURCES.md). Qt libraries and licenses are listed in [THIRD_PARTY.md](THIRD_PARTY.md).

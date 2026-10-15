@@ -1,43 +1,51 @@
 #!/usr/bin/env bash
 set -eu
 
-# Os argumentos são definidos pelo instalador após consultar o site oficial.
-ferramenta="$1"
-versao="$2"
+message() {
+    if [ "${NOX_LANGUAGE:-en}" = 'pt_BR' ]; then
+        printf '%s\n' "$2"
+    else
+        printf '%s\n' "$1"
+    fi
+}
+
+# The installer supplies these arguments after checking the official website.
+tool="$1"
+version="$2"
 url="$3"
 checksum="$4"
 
-temporario=$(mktemp -d)
-trap 'rm -rf -- "$temporario"' EXIT
+temporary=$(mktemp -d)
+trap 'rm -rf -- "$temporary"' EXIT
 
-echo "Baixando $ferramenta $versao..."
-curl -fL --proto '=https' --proto-redir '=https' --retry 2 "$url" -o "$temporario/pacote"
-printf '%s  %s\n' "$checksum" "$temporario/pacote" | sha256sum --check -
+message "Downloading $tool $version..." "Baixando $tool $version..."
+curl -fL --proto '=https' --proto-redir '=https' --retry 2 "$url" -o "$temporary/package"
+printf '%s  %s\n' "$checksum" "$temporary/package" | sha256sum --check -
 
-# Cada instalação recebe uma pasta nova. A versão anterior permanece intacta.
+# Each installation gets a new folder. The previous version stays intact.
 base="$HOME/.local/share/nox"
 mkdir -p "$base/toolchains" "$base/bin" "$base/current"
-destino=$(mktemp -d "$base/toolchains/$ferramenta-$versao-XXXXXX")
-echo 'Extraindo pacote...'
-tar -xf "$temporario/pacote" --strip-components=1 --no-same-owner -C "$destino"
+destination=$(mktemp -d "$base/toolchains/$tool-$version-XXXXXX")
+message 'Extracting package...' 'Extraindo pacote...'
+tar -xf "$temporary/package" --strip-components=1 --no-same-owner -C "$destination"
 
-if [ "$ferramenta" = 'node' ]; then
-    executaveis='node npm npx'
-    "$destino/bin/node" --version
-    PATH="$destino/bin:$PATH" "$destino/bin/npm" --version
+if [ "$tool" = 'node' ]; then
+    executables='node npm npx'
+    "$destination/bin/node" --version
+    PATH="$destination/bin:$PATH" "$destination/bin/npm" --version
 else
-    executaveis='go gofmt'
-    "$destino/bin/go" version
+    executables='go gofmt'
+    "$destination/bin/go" version
 fi
-for programa in $executaveis; do
-    test -x "$destino/bin/$programa"
+for program in $executables; do
+    test -x "$destination/bin/$program"
 done
 
-# Troca o link somente depois que a extração e a verificação terminaram.
-ln -sfn "$destino" "$base/current/$ferramenta.next"
-mv -Tf "$base/current/$ferramenta.next" "$base/current/$ferramenta"
-for programa in $executaveis; do
-    ln -sfn "$base/current/$ferramenta/bin/$programa" "$base/bin/$programa"
+# Switch the link only after extraction and verification finish.
+ln -sfn "$destination" "$base/current/$tool.next"
+mv -Tf "$base/current/$tool.next" "$base/current/$tool"
+for program in $executables; do
+    ln -sfn "$base/current/$tool/bin/$program" "$base/bin/$program"
 done
 
 mkdir -p "$HOME/.config/nox" "$HOME/.config/fish/conf.d"
@@ -48,9 +56,9 @@ case ":$PATH:" in
 esac
 ENV
 
-for perfil in .profile .bashrc .zshrc; do
-    if ! grep -Fq '.config/nox/env.sh' "$HOME/$perfil" 2>/dev/null; then
-        printf '\n# Nox\n[ -f "$HOME/.config/nox/env.sh" ] && . "$HOME/.config/nox/env.sh"\n' >> "$HOME/$perfil"
+for profile in .profile .bashrc .zshrc; do
+    if ! grep -Fq '.config/nox/env.sh' "$HOME/$profile" 2>/dev/null; then
+        printf '\n# Nox\n[ -f "$HOME/.config/nox/env.sh" ] && . "$HOME/.config/nox/env.sh"\n' >> "$HOME/$profile"
     fi
 done
 
@@ -61,10 +69,10 @@ end
 FISH
 
 export PATH="$base/bin:$PATH"
-if [ "$ferramenta" = 'node' ]; then
+if [ "$tool" = 'node' ]; then
     node --version
     npm --version
 else
     go version
 fi
-echo 'Pronto. Abra um novo terminal para usar a versão instalada.'
+message 'Done. Open a new terminal to use the installed version.' 'Pronto. Abra um novo terminal para usar a versão instalada.'

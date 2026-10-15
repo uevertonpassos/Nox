@@ -2,7 +2,8 @@
 Type=Application
 Name=Nox
 GenericName=Developer tools installer
-Comment=Instalar ferramentas de desenvolvimento
+Comment=Install developer tools
+Comment[pt_BR]=Instalar ferramentas de desenvolvimento
 Exec=nox
 Icon=nox
 Terminal=false

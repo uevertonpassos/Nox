@@ -1,14 +1,15 @@
-Primeira versão do Nox.
+First Nox release.
 
-- Node.js LTS, npm, Go, Zed, Docker, C e C++.
-- Interface desktop com busca e registro das instalações.
-- Comandos de instalação para Linux e Windows.
+- Node.js LTS, npm, Go, Zed, Docker, C, and C++.
+- Desktop interface with search and installation logs.
+- English and Portuguese, selectable in Settings.
+- Installation commands for Linux and Windows.
 
 Downloads:
 
-- **Nox-Windows-x64.exe**: instalador para Windows x64. Requer WinGet para instalar as ferramentas.
-- **Nox-Linux-x86_64.AppImage**: aplicativo com Qt incluído. Requer glibc 2.35 ou mais recente.
-- **Nox-Linux-x86_64.tar.gz**: pacote que usa o Qt 6 do sistema. Extraia e execute `bash instalar.sh`.
-- **SHA256SUMS.txt**: checksums dos arquivos.
+- **Nox-Windows-x64.exe**: Windows x64 installer. Requires WinGet to install tools.
+- **Nox-Linux-x86_64.AppImage**: app with Qt included. Requires glibc 2.35 or newer.
+- **Nox-Linux-x86_64.tar.gz**: package using your system's Qt 6 libraries. Extract it and run `bash install.sh`.
+- **SHA256SUMS.txt**: file checksums.
 
-O instalador Windows não tem assinatura digital. A compilação e os testes da janela não substituem a verificação de cada ferramenta em cada distribuição.
+The Windows installer is not digitally signed. Build and window tests do not replace testing every tool on every distribution.

@@ -1,4 +1,4 @@
-name: Compilar e empacotar
+name: Build and package
 
 on:
   push:
@@ -16,17 +16,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Instalar dependências
+      - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ qt6-base-dev libqt6svg6-dev qt6-wayland libgl1-mesa-dev libfuse2
-      - name: Compilar
+      - name: Build
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build
-      - name: Testar
+      - name: Test
         run: ctest --test-dir build --output-on-failure
-      - name: Gerar pacote Linux
+      - name: Package Linux
         run: |
           cpack --config build/CPackConfig.cmake -G TGZ -B dist
           mv dist/Nox-*.tar.gz dist/Nox-Linux-x86_64.tar.gz
-      - name: Gerar AppImage
+      - name: Build AppImage
         env:
           APPIMAGE_EXTRACT_AND_RUN: '1'
           QMAKE: /usr/bin/qmake6
@@ -39,7 +39,7 @@ jobs:
           DESTDIR=AppDir cmake --install build --prefix /usr
           OUTPUT=Nox-Linux-x86_64.AppImage ./linuxdeploy.AppImage --appdir AppDir --plugin qt --output appimage
           mv Nox-Linux-x86_64.AppImage dist/
-      - name: Conferir AppImage
+      - name: Check AppImage
         env:
           QT_QPA_PLATFORM: offscreen
         run: ./dist/Nox-Linux-x86_64.AppImage --appimage-extract-and-run --smoke-test
@@ -60,24 +60,24 @@ jobs:
           version: '6.8.3'
           arch: win64_msvc2022_64
           cache: true
-      - name: Compilar
+      - name: Build
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
       - run: cmake --build build --config Release
-      - name: Testar
+      - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
-      - name: Reunir bibliotecas Qt
+      - name: Deploy Qt libraries
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force deploy
           Copy-Item build/Release/nox.exe deploy/
           windeployqt --release --no-translations --compiler-runtime deploy/nox.exe
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Instalar NSIS
+      - name: Install NSIS
         shell: pwsh
         run: |
           choco install nsis --yes --no-progress
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Gerar instalador
+      - name: Build installer
         shell: pwsh
         run: |
           cmake -S . -B build "-DNOX_DEPLOY_DIR=$((Get-Location).Path)/deploy"
@@ -86,27 +86,27 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             $log = Get-ChildItem dist -Recurse -Filter NSISOutput.log | Select-Object -First 1
             if ($log) {
-              $erro = ((Get-Content $log.FullName -Tail 35) -join "%0A").Replace("`r", "")
-              Write-Output "::error title=Erro do NSIS::$erro"
+              $failure = ((Get-Content $log.FullName -Tail 35) -join "%0A").Replace("`r", "")
+              Write-Output "::error title=NSIS error::$failure"
             }
             exit 1
           }
           Move-Item dist/Nox-*.exe dist/Nox-Windows-x64.exe
-      - name: Conferir instalador
+      - name: Check installer
         shell: pwsh
         run: |
           try {
-            $destino = Join-Path $env:RUNNER_TEMP "Nox"
-            $processo = Start-Process -FilePath "./dist/Nox-Windows-x64.exe" -ArgumentList "/S", "/D=$destino" -Wait -PassThru
-            if ($processo.ExitCode -ne 0) { throw "O instalador retornou o código $($processo.ExitCode)." }
-            if (!(Test-Path "$destino/bin/nox.exe")) { throw "Executável não encontrado em $destino/bin/nox.exe." }
+            $destination = Join-Path $env:RUNNER_TEMP "Nox"
+            $process = Start-Process -FilePath "./dist/Nox-Windows-x64.exe" -ArgumentList "/S", "/D=$destination" -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "Installer exited with code $($process.ExitCode)." }
+            if (!(Test-Path "$destination/bin/nox.exe")) { throw "Executable not found at $destination/bin/nox.exe." }
             $env:QT_QPA_PLATFORM = "windows"
             $env:PATH = "$env:SystemRoot/system32;$env:SystemRoot"
-            $processo = Start-Process -FilePath "$destino/bin/nox.exe" -ArgumentList "--smoke-test" -Wait -PassThru
-            if ($processo.ExitCode -ne 0) { throw "O aplicativo instalado retornou o código $($processo.ExitCode)." }
+            $process = Start-Process -FilePath "$destination/bin/nox.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "Installed application exited with code $($process.ExitCode)." }
           } catch {
-            $erro = $_.ToString().Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
-            Write-Output "::error title=Teste do instalador::$erro"
+            $failure = $_.ToString().Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
+            Write-Output "::error title=Installer test::$failure"
             exit 1
           }
       - uses: actions/upload-artifact@v4
@@ -115,7 +115,7 @@ jobs:
           path: dist/Nox-Windows-x64.exe
           if-no-files-found: error
 
-  publicar:
+  publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [linux, windows]
     runs-on: ubuntu-latest
@@ -126,13 +126,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: nox-*
-          path: arquivos
+          path: downloads
           merge-multiple: true
-      - name: Publicar downloads
+      - name: Publish downloads
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd arquivos
+          cd downloads
           sha256sum Nox-* > SHA256SUMS.txt
           cd ..
-          gh release create "$GITHUB_REF_NAME" arquivos/* --verify-tag --title "Nox $GITHUB_REF_NAME" --notes-file packaging/release.md
+          gh release create "$GITHUB_REF_NAME" downloads/* --verify-tag --title "Nox $GITHUB_REF_NAME" --notes-file packaging/release.md

@@ -1,13 +1,16 @@
 QWidget { background: #202226; color: #e2e4e7; font-size: 13px; }
 QLabel { background: transparent; }
-QLabel#marca { font-size: 20px; font-weight: 600; }
-QLabel#sistema, QLabel#descricao, QLabel#situacao { color: #aeb3bc; font-size: 12px; }
-QLabel#nomeFerramenta { font-size: 15px; font-weight: 600; }
-QFrame#ferramenta { background: #24272c; border-bottom: 1px solid #373b42; }
+QLabel#brand { font-size: 20px; font-weight: 600; }
+QLabel#system, QLabel#description, QLabel#status { color: #aeb3bc; font-size: 12px; }
+QLabel#toolName { font-size: 15px; font-weight: 600; }
+QFrame#tool { background: #24272c; border-bottom: 1px solid #373b42; }
 QPushButton { background: #32363d; border: 1px solid #50555e; border-radius: 3px; padding: 7px 12px; }
 QPushButton:hover { background: #3b4048; }
 QPushButton:pressed { background: #282c32; }
 QPushButton:focus, QLineEdit:focus { border: 1px solid #8badd8; }
+QComboBox { background: #32363d; border: 1px solid #50555e; border-radius: 3px; padding: 7px 12px; }
+QComboBox:focus { border-color: #8badd8; }
+QComboBox QAbstractItemView { selection-background-color: #39567d; }
 QPushButton:disabled { background: #2a2d32; color: #767d87; border-color: #3b4048; }
 QLineEdit { background: #191b1f; border: 1px solid #50555e; border-radius: 3px; padding: 8px 10px; selection-background-color: #39567d; }
 QPlainTextEdit { background: #191b1f; border: 1px solid #40454d; border-radius: 3px; padding: 8px; selection-background-color: #39567d; }
