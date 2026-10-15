@@ -95,14 +95,20 @@ jobs:
       - name: Conferir instalador
         shell: pwsh
         run: |
-          $destino = "$env:RUNNER_TEMP/Nox"
-          $processo = Start-Process -FilePath "./dist/Nox-Windows-x64.exe" -ArgumentList "/S", "/D=$destino" -Wait -PassThru
-          if ($processo.ExitCode -ne 0) { exit $processo.ExitCode }
-          if (!(Test-Path "$destino/bin/nox.exe")) { throw "Executável não encontrado após instalar." }
-          $env:QT_QPA_PLATFORM = "windows"
-          $env:PATH = "$env:SystemRoot/system32;$env:SystemRoot"
-          $processo = Start-Process -FilePath "$destino/bin/nox.exe" -ArgumentList "--smoke-test" -Wait -PassThru
-          if ($processo.ExitCode -ne 0) { exit $processo.ExitCode }
+          try {
+            $destino = Join-Path $env:RUNNER_TEMP "Nox"
+            $processo = Start-Process -FilePath "./dist/Nox-Windows-x64.exe" -ArgumentList "/S", "/D=$destino" -Wait -PassThru
+            if ($processo.ExitCode -ne 0) { throw "O instalador retornou o código $($processo.ExitCode)." }
+            if (!(Test-Path "$destino/bin/nox.exe")) { throw "Executável não encontrado em $destino/bin/nox.exe." }
+            $env:QT_QPA_PLATFORM = "windows"
+            $env:PATH = "$env:SystemRoot/system32;$env:SystemRoot"
+            $processo = Start-Process -FilePath "$destino/bin/nox.exe" -ArgumentList "--smoke-test" -Wait -PassThru
+            if ($processo.ExitCode -ne 0) { throw "O aplicativo instalado retornou o código $($processo.ExitCode)." }
+          } catch {
+            $erro = $_.ToString().Replace("%", "%25").Replace("`r", "%0D").Replace("`n", "%0A")
+            Write-Output "::error title=Teste do instalador::$erro"
+            exit 1
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: nox-windows-x64
