@@ -56,7 +56,6 @@ void setTheme(const QString &id, bool save) {
     palette.setColor(QPalette::Link, QColor(t.accent));
     palette.setColor(QPalette::Disabled, QPalette::Text, QColor(t.muted));
     palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(t.muted));
-    qApp->setPalette(palette);
 
     QFile file(":/style.qss");
     if (file.open(QIODevice::ReadOnly)) {
@@ -73,6 +72,9 @@ void setTheme(const QString &id, bool save) {
             sheet.replace("@" + token.key(), token.value());
         qApp->setStyleSheet(sheet);
     }
+    // Qt 6.2 may reset the application palette when installing a stylesheet.
+    // Apply it last so native controls also retain the selected theme.
+    qApp->setPalette(palette);
     if (save)
         QSettings().setValue("theme", selectedTheme);
 }
