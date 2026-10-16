@@ -1,0 +1,2 @@
+# Shell scripts also need LF when Linux builds use a Windows checkout via WSL.
+*.sh text eol=lf

@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("nox");
     app.setOrganizationName("Nox");
-    app.setApplicationVersion("0.2.0");
+    app.setApplicationVersion("0.2.1");
     app.setDesktopFileName("io.noxdev.Nox");
     app.setWindowIcon(QIcon(":/nox.svg"));
     loadLanguage();

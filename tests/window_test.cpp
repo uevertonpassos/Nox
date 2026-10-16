@@ -197,7 +197,10 @@ void WindowTest::themesRender() {
         auto *picker = window.findChild<QComboBox *>("themePicker");
         picker->setCurrentIndex(picker->findData(theme.id));
         QCoreApplication::processEvents();
-        QCOMPARE(qApp->palette().color(QPalette::Window), QColor(theme.background));
+        // Check the rendered surface and control palette. Qt 6.2's global
+        // application palette can report Fusion defaults while QSS is active.
+        QCOMPARE(window.grab().toImage().pixelColor(2, 2), QColor(theme.background));
+        QCOMPARE(window.findChild<QLineEdit *>("search")->palette().color(QPalette::Base), QColor(theme.field));
         QVERIFY(!qApp->styleSheet().contains('@'));
         QVERIFY(!window.windowIcon().isNull());
         if (!screenshotDir.isEmpty()) {

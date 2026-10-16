@@ -1,4 +1,4 @@
-Nox 0.2.0 refreshes the desktop interface and introduces a new visual identity.
+Nox 0.2.1 refreshes the desktop interface and introduces a new visual identity.
 
 - Node.js LTS, npm, Go, Zed, Docker, C, and C++.
 - New workspace layout with category navigation, search, detection badges, and installation logs.
