@@ -5,3 +5,4 @@
 __pycache__/
 *.pyc
 *.AppImage
+/aqtinstall.log

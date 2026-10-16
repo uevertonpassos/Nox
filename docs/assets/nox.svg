@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 128 128">
+  <title>Nox</title>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="#b7ed8b"/>
+  <path d="M31 91V37h16l34 35V37h16v54H81L47 56v35Z" fill="#172510"/>
+  <path d="m84 21 4 6-4 6-4-6Z" fill="#172510"/>
+</svg>

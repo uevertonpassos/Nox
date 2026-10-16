@@ -1,9 +1,12 @@
 #include "language.h"
+#include "theme.h"
 #include "window.h"
 
 #include <QApplication>
 #include <QDir>
 #include <QFile>
+#include <QIcon>
+#include <QFont>
 #include <QLineEdit>
 #include <QLockFile>
 #include <QMessageBox>
@@ -18,13 +21,16 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("nox");
     app.setOrganizationName("Nox");
-    app.setApplicationVersion("0.1.0");
+    app.setApplicationVersion("0.2.0");
+    app.setDesktopFileName("io.noxdev.Nox");
+    app.setWindowIcon(QIcon(":/nox.svg"));
     loadLanguage();
     app.setStyle("Fusion");
+#ifdef Q_OS_WIN
+    app.setFont(QFont("Segoe UI", 10));
+#endif
 
-    QFile style(":/style.qss");
-    if (style.open(QIODevice::ReadOnly))
-        app.setStyleSheet(QString::fromUtf8(style.readAll()));
+    loadTheme();
 
     bool smokeTest = app.arguments().contains("--smoke-test");
 #ifndef Q_OS_WIN

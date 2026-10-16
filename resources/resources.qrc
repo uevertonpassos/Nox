@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>nox.svg</file>
+        <file>chevron.svg</file>
         <file>style.qss</file>
         <file>toolchain.sh</file>
         <file>translations/pt_BR.json</file>

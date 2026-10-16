@@ -10,6 +10,7 @@ class QLineEdit;
 class QPlainTextEdit;
 class QProgressBar;
 class QPushButton;
+class QComboBox;
 
 class Window : public QMainWindow {
     Q_OBJECT
@@ -30,6 +31,7 @@ private:
     void appendLog(const QString &text);
     void setBusy(bool busy);
     void saveLog();
+    void updateToolCount();
 
     SystemInfo systemInfo;
     Installer installer;
@@ -40,6 +42,9 @@ private:
     QPlainTextEdit *log;
     QLabel *message;
     QLabel *noResults;
+    QLabel *toolCount;
+    QComboBox *themePicker;
+    QString selectedCategory = "all";
     QPushButton *refreshButton;
     QPushButton *settingsButton;
     QProgressBar *progress;

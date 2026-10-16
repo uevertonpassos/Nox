@@ -1,9 +1,13 @@
-First Nox release.
+Nox 0.2.0 refreshes the desktop interface and introduces a new visual identity.
 
 - Node.js LTS, npm, Go, Zed, Docker, C, and C++.
-- Desktop interface with search and installation logs.
+- New workspace layout with category navigation, search, detection badges, and installation logs.
+- Five saved themes: Nox Mint, Ocean, Violet, Ember, and Daylight.
+- Theme preview in Settings; cancelling restores the previous appearance.
+- New SVG logo, multi-resolution Windows executable/installer icons, and Linux desktop icons.
 - English and Portuguese, selectable in Settings.
 - Installation commands for Linux and Windows.
+- [Project website](https://uevertonpassos.github.io/Nox/) with real screenshots of all five themes.
 
 Downloads:
 
